@@ -1,0 +1,192 @@
+library(data.table)
+setwd("C:/Users/mduschl/Documents/Schulungen/R for data analytics/data")
+# create data set
+n = 200
+comp_data <- data.frame(
+Company = paste("Company",1:n),
+Office  = sample(c("New York","Frankfurt","London","Boston","Singapur","San Francisco")
+, size = n, replace = T, prob = sample(1:100,6)),
+Infrastructure = sample(c("weak","strong"), size = n, replace = T, prob = c(0.3,0.7)),
+Marketing = round(runif(n, 0, 0.7), digits = 0),
+Contracts = sample(c("Few","Medium","Many"), size = n, replace = T, prob = c(0.2,0.3,0.5)),
+Sales = sample(2000:4000, n, replace = TRUE),
+Profit = sample(100:500, n, replace = TRUE)
+)
+comp_data
+head(comp_data) # show the first rows only
+class(comp_data) # Companies is a data.frame object
+Companies <- as.data.table(comp_data)
+class(Companies)
+head(comp_data)
+comp_data
+head(Companies)
+Companies
+class(Companies)
+DT = data.table(x=c("b","b","b","a","a"),
+y=rnorm(5),
+z=runif(5))
+class(DT)
+Companies[3:5,]
+Companies[3:5]
+Companies[Office == "London"]
+Companies[Contracts %in% c("Medium","Many")]
+Companies[Contracts %in% c("Medium","Many"),]
+Companies[Contracts %in% c("Medium","Many"),,]
+Companies[(Office == "London" & Infrastructure == "strong") | Marketing == 1]
+Companies[,.(Company, Sales, Profit)]
+Companies[,list(Company, Sales, Profit)]
+Companies[,.(mean(Profit, na.rm=TRUE), sd(Profit, na.rm=TRUE))]
+Companies[,.(AvgProfit = mean(Profit, na.rm=TRUE), SdProfit = sd(Profit, na.rm=TRUE))]
+Companies[,.(Profit, SdProfit = sd(Profit, na.rm=TRUE))]
+Companies[, .(SumSales = sum(Sales,na.rm=T)), by = Contracts]
+Companies[, .(AvgSales = mean(Sales, na.rm=T)), by =.(Contracts, Marketing)]
+Companies[, .(AvgSales = mean(Sales, na.rm=T)), by = .(StarGroup = ifelse(Profit < 400,0,1))]
+Companies[, .N, by = Contracts]
+Companies[Office %in% c("Frankfurt","London","New York") & Marketing == 1 & Sales > 3000]
+Companies[, .(AvgSales = mean(Sales,na.rm=T), MaxSales = max(Sales,na.rm=T), MinSales = min(Sales,na.rm=T),
+AvgProfit = mean(Profit, na.rm=T), MaxProfit = max(Profit, na.rm=T), MinProfit = min(Profit, na.rm=T)),
+by =.(Infrastructure, Marketing)]
+Companies[, AvgSales = mean(Sales,na.rm=T),
+by =.(Infrastructure, Marketing)]
+Companies[, AvgSales = mean(Sales,na.rm=T),
+by =.(Infrastructure, Marketing)]
+Companies[, .(AvgSales = mean(Sales,na.rm=T), MedSales = m(Sales,na.rm=T)),
+by =.(Marketing)]
+Companies[, AvgSales = mean(Sales,na.rm=T),
+by =.(Infrastructure, Marketing)]
+Companies[, AvgSales = mean(Sales,na.rm=T), by =.(Infrastructure, Marketing)]
+Companies[, .(AvgSales = mean(Sales,na.rm=T), MedSales = m(Sales,na.rm=T)),
+by =.(Marketing)]
+Companies[, .(AvgSales = mean(Sales,na.rm=T), MedSales = medium(Sales,na.rm=T)),
+by =.(Marketing)]
+DT = data.table(x=c("b","b","b","a","a","a","c","c","c","c"),v=rnorm(100000000))
+DT[, mean(v), by=x]
+system.time(DT[, mean(v), by=x])
+tempCompanies <- Companies[Office == "San Francisco", Office := "S.F."]
+tempCompanies
+tempCompanies
+WannaBeCopy <- Companies
+Companies[, ProfitMargin := Profit/Sales]
+WannaBeCopy
+Companies[, ProfitMargin := NULL]
+WannaBeCopy
+RealCopy <- copy(Companies)
+Companies[, ProfitMargin := Profit/Sales]
+Companies
+RealCopy
+Companies[, c("ProfitMargin","CompanyID") := .(round(ProfitMargin,digits = 4)*100, 1:(.N))]
+Companies
+Companies[, c("Company","ProfitMargin") := NULL]
+Companies[, c("Company","ProfitMargin") := NULL]
+ColsToBeDeleted <- c("Company","ProfitMargin")
+Companies[, (ColsToBeDeleted) := NULL]
+Companies
+Companies <- as.data.table(comp_data)
+Companies <- as.data.table(comp_data)
+setorder(Companies, -Infrastructure, Marketing, Contracts)
+Companies
+colNames <- names(Companies)
+setcolorder(Companies,c(colNames[7],colNames[1:6])) # reorder data set (randomly)
+colNames
+setcolorder(Companies,c(colNames[7],colNames[1:6]))
+setcolorder
+setnames(Companies, c("Contracts","Sales"), c("Orders","Revenue"))
+Companies
+setnames(Companies, c("Orders","Revenue"), c("Contracts","Sales"))
+Companies[, "Employees" := rnorm(200, mean=50, sd=20)]
+Companies
+Companies[, "SalesperEmpl" := round(Sales/Employees, 2)]
+Companies
+Companies[, "Infrastructure_re" := 0]
+Companies[Infrastructure == "strong",  Infrastructure_re := 1]
+Companies
+tmp <- Companies[, .(SumSales = sum(Sales)), by=Office]
+tmp[SumSales > 100000]
+Companies[, .(SumSales = sum(Sales)), by=Office][SumSales > 100000]
+Companies
+DT[.N-1] # penultimate row
+Companies[, lapply(.SD, mean, na.rm = TRUE)
+, by = .(Infrastructure, Marketing, Office)
+, .SDcols = c("Profit", "Sales")]
+?melt.data.table
+?melt.data.table
+n <- 9
+CompanySales <- data.table(Company = paste0("Company ",1:n)
+, Office = sample(c("New York","Frankfurt","London","Boston","Singapur","San Francisco")
+, size = n, replace = TRUE)
+, Sales_Prod1 = sample(1000:5000,n)
+, Sales_Prod2 = sample(1000:5000,n)
+, Sales_Prod3 = sample(1000:5000,n))
+CompanySales
+longSales0 <- reshape(data = CompanySales, varying = names(CompanySales)[3:5], v.names = "Sales"
+, timevar = "Product", idvar = c("Company","Office"), times = paste0("Product ",1:3)
+, direction = "long")
+longSales0
+longSales1 = melt(CompanySales, id.vars = c("Company","Office")
+, measure.vars = paste("Sales_Prod",1:3,sep="")
+, variable.name = "Product", value.name = "Sales")
+longSales1
+longSales0 <- reshape(data = CompanySales, varying = names(CompanySales)[3:5], v.names = "Sales"
+, timevar = "Product", idvar = c("Company","Office"), times = paste0("Product ",1:3)
+, direction = "long")
+longSales0
+longSales1
+all.equal(longSales1[,c(1,3)],longSales0[,c(1,3)])
+longSales1[,c(1,3)]
+longSales0[,c(1,3)]
+longSales1
+# 3: benchmark various melt implementations
+n <- 100000
+CompanySales <- data.table(Company = paste0("Company ",1:n)
+, Office = sample(c("New York","Frankfurt","London","Boston","Singapur","San Francisco")
+, size = n, replace = TRUE)
+, Sales_Prod1 = sample(1000:5000,n, replace = TRUE)
+, Sales_Prod2 = sample(1000:5000,n, replace = TRUE)
+, Sales_Prod3 = sample(1000:5000,n, replace = TRUE))
+system.time(longSales0 <- reshape(data = CompanySales, varying = names(CompanySales)[3:5], v.names = "Sales"
+, timevar = "Product", idvar = c("Company","Office"), times = paste0("Product ",1:3)
+, direction = "long"))
+system.time(longSales1 <- melt(CompanySales, id.vars = c("Company","Office")
+, measure.vars = paste("Sales_Prod",1:3,sep="")
+, variable.name = "Product", value.name = "Sales"))
+system.time(longSales1 <- reshape2::melt(CompanySales, id.vars = c("Company","Office")
+, measure.vars = paste("Sales_Prod",1:3,sep="")
+, variable.name = "Product", value.name = "Sales"))
+longSales2 = melt(CompanySales, measure.vars = patterns("^Sales")
+, variable.name = "Product", value.name = "Sales")
+CompanySalesRevisited <- dcast(longSales1, Company + Office ~ Product, value.var = "Sales")
+longSales2
+CompanySalesRevisited <- dcast(longSales1, Company + Office ~ Product, value.var = "Sales")
+CompanySalesRevisited
+CompanySales[, paste("Profit_Prod",1:3, sep="") :=
+.(sample(100:500,n), sample(100:500,n), sample(100:500,n))]
+CompanySales[, paste("Profit_Prod",1:3, sep="") :=
+.(sample(100:500,n), sample(100:500,n), sample(100:500,n))]
+n <- 9
+CompanySales <- data.table(Company = paste0("Company ",1:n)
+, Office = sample(c("New York","Frankfurt","London","Boston","Singapur","San Francisco")
+, size = n, replace = TRUE)
+, Sales_Prod1 = sample(1000:5000,n)
+, Sales_Prod2 = sample(1000:5000,n)
+, Sales_Prod3 = sample(1000:5000,n))
+CompanySales[, paste("Profit_Prod",1:3, sep="") :=
+.(sample(100:500,n), sample(100:500,n), sample(100:500,n))]
+CompanySales
+longSales3 = melt(CompanySales, measure.vars = 3:8
+, variable.name = "Sales_Profit_Prod", value.name = c("Value")
+, variable.factor = TRUE)
+longSales3
+?melt
+longSales3 = melt(CompanySales, measure.vars = 3:8
+, variable.name = "Sales_Profit_Prod", value.name = c("Value"))
+longSales3
+CompanySales
+CompanySalesRevisited <- dcast(longSales3, Company + Office ~ Sales_Profit_Prod
+, value.var = "Value")
+CompanySalesRevisited
+longSales4 = melt(CompanySales, measure.vars = patterns("^Sales","^Profit")
+, variable.name = "Product", value.name = c("Sales","Profit"))
+longSales4
+CompanySalesRevisited <- data.table::dcast(longSales4, Company + Office ~ Product
+, value.var = c("Sales","Profit"))
+CompanySalesRevisited
